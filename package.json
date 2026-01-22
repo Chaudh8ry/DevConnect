@@ -1,0 +1,27 @@
+{
+  "name": "devconnect",
+  "version": "1.0.0",
+  "description": "A webapp for Developers to connect together",
+  "keywords": [
+    "nodejs",
+    "javascript"
+  ],
+  "homepage": "https://github.com/Chaudh8ry/DevConnect#readme",
+  "bugs": {
+    "url": "https://github.com/Chaudh8ry/DevConnect/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Chaudh8ry/DevConnect.git"
+  },
+  "license": "ISC",
+  "author": "Vishal Chaudhary",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
