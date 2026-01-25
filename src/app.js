@@ -2,26 +2,24 @@ const express = require("express");
 
 const app = express();
 
-app.use("/test",(req,res) => {
-    res.send("Hello from server");
+// Authorization : Handle Auth middlewear for all HTTP methods
+app.use("/admin",(req,res,next) => {
+    const token = "xyz"
+    const isAdminAuthorized = token === "xyz"
+    if(!isAdminAuthorized){
+        res.status(401).send("Unauthorized requests")
+    }else{
+        console.log("chlra 1")
+        next()
+    }
 })
 
-// GET
-app.get("/user",(req,res)=> {
-    res.send({
-        name : "Vishal",
-        profession: "Rich"
-    })
+app.get("/admin/getAllData",(req,res) => {
+    res.send("Here is all your Data")
 })
 
-// POST
-app.post("/user",(req,res) => {
-    res.send("Data successfully tuhdud sent to DataBase")
-})
-
-// DELETE
-app.delete("/user",(req,res) => {
-    res.send("Data Deleted")
+app.get("/admin/deleteUser", (req,res) => {
+    res.send("User is Deleted")
 })
 
 app.listen(8888,() => {
