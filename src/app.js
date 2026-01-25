@@ -1,7 +1,7 @@
 // Import the Express framework
 const express = require("express");
 const app = express();
-const {connectDB} = require("../config/database.js");
+const {connectDB} = require("./config/database.js");
 
 connectDB()
     .then(() => {

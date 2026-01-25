@@ -1,8 +1,10 @@
+require('dotenv').config();
 const mongoose = require("mongoose")
+const mongoURI = process.env.mongoDB_url;
 
 // "connectDB" will store a Promise returned by mongoose.connect
 const connectDB = async() => {
-    await mongoose.connect("mongodb+srv://chaudh8ry:8178968399@cluster0.92sowgu.mongodb.net/devCoonnect") //returns a Promise
+    await mongoose.connect(mongoURI) //returns a Promise
 }
 
 module.exports = {connectDB}
