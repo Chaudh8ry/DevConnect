@@ -63,6 +63,17 @@ app.get("/feed", async (req, res) => {
     }
 });
 
+//Route: DLETE user by ID
+app.delete("/user",async (req,res) => {
+    const userID = req.body.userID
+    try{
+       const user = await User.findByIdAndDelete(userID)
+       res.send("user deleted successfully ")
+    }catch(err){
+        res.status(400).send("Something is Wrong")
+    }
+})
+
 connectDB()
     .then(() => {
         console.log("Connection established")
