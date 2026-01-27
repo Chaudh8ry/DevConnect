@@ -26,6 +26,43 @@ app.post("/signup",async(req,res) => {
     }
 })
 
+// Route: GET user by Email
+app.get("/user", async (req, res) => {
+    // Extract the emailID from the request body
+    // NOTE: For GET requests, usually query params are used instead of body
+    const userEmail = req.body.emailID;
+
+    try {
+        // Search the User collection for documents matching the given emailID
+        const users = await User.find({ emailID: userEmail });
+
+        // If no user is found, return a 404 (Not Found) response
+        if (users.length === 0) {
+            res.status(404).send("User not Found");
+        } else {
+            // If user(s) are found, send them back in the response
+            res.send(users);
+        }
+    } catch (err) {
+        // If any error occurs during database query, send a 400 (Bad Request) response
+        res.status(400).send("Something went Wrong");
+    }
+});
+
+// Route: GET /feed - Fetch all users from the database
+app.get("/feed", async (req, res) => {
+    try {
+        // Retrieve all documents from the User collection
+        const feed = await User.find({});
+        
+        // Send the list of all users as the response
+        res.send(feed);
+    } catch (err) {
+        // Handle errors gracefully with a 400 response
+        res.status(400).send("Something went wrong");
+    }
+});
+
 connectDB()
     .then(() => {
         console.log("Connection established")
