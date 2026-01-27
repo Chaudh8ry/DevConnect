@@ -74,6 +74,18 @@ app.delete("/user",async (req,res) => {
     }
 })
 
+//Route: PATCH 
+app.patch("/user",async (req,res) => {
+    const userID = req.body.userID
+    const data = req.body
+    try{
+        await User.findByIdAndUpdate({_id : userID},data) 
+        res.send("User Updated successfully")
+    }catch(err){
+        res.status(400).send("Something went wrong")
+    }
+})
+
 connectDB()
     .then(() => {
         console.log("Connection established")
