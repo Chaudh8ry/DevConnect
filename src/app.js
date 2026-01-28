@@ -8,6 +8,7 @@ const { default: mongoose } = require("mongoose");
 // express.json is a middlewear provided by express that converts JSON into JS Object
 app.use(express.json()) 
 
+// Route to Add user in DB
 app.post("/signup",async(req,res) => {
 
     // Create a new instance of the User model using the req sent by User in JSON fromat 
@@ -74,15 +75,47 @@ app.delete("/user",async (req,res) => {
     }
 })
 
-//Route: PATCH 
-app.patch("/user",async (req,res) => {
-    const userID = req.body.userID
+// Define a PATCH route to update a user by their ID
+app.patch("/user/:userID", async (req, res) => {
+    // Extract the userID from the request parameters
+    const userID = req.params?.userID
+    
+    // Extract the request body (data to update)
     const data = req.body
-    try{
-        await User.findByIdAndUpdate({_id : userID},data) 
+    
+    try {
+        // Define which fields are allowed to be updated
+        const ALLOWED_UPDATES = [
+            "about",
+            "gender",
+            "age",
+            "skills",
+        ]
+
+        // Check if every key in the request body is allowed
+        // NOTE: Using arrow function without braces automatically returns the expression
+        const isUpdateAllowed = Object.keys(data).every((k) =>
+            ALLOWED_UPDATES.includes(k)
+        )
+
+        // If any field is not allowed, throw an error
+        if (!isUpdateAllowed) {
+            throw new Error("Update not Allowed")
+        }
+
+        // Validate that skills array does not exceed 4 items
+        if (data?.skills.length > 4) {
+            throw new Error("Skills cannot be more than 4")
+        }
+
+        // Update the user in the database
+        await User.findByIdAndUpdate(userID, data, { runValidators: true })
+
+        // Send success response
         res.send("User Updated successfully")
-    }catch(err){
-        res.status(400).send("Something went wrong")
+    } catch (err) {
+        // Handle errors and send a 400 response with the error message
+        res.status(400).send("Error Occured: " + err.message)
     }
 })
 
