@@ -5,22 +5,27 @@ const {connectDB} = require("./config/database.js");
 const User = require("./models/user.js");
 const { default: mongoose } = require("mongoose");
 const {validateSignUpData} = require("./utils/validation.js")
+const bcrypt = require("bcrypt")
+
 // express.json is a middlewear provided by express that converts JSON into JS Object
 app.use(express.json()) 
 
 // Route to Add user in DB
 app.post("/signup",async(req,res) => {
     
-    //Encryption
-    
     
     try{
         //Validation
         validateSignUpData(req)
         
+        //Encryption
+        const {firstName,lastName,emailID,password,age} = req.body
+
+        const passwordHash = await bcrypt.hash(password,10 )
+
         // Create a new instance of the User model using the req sent by User in JSON fromat 
         // 'User' here is a Mongoose model that maps to a MongoDB collection. 
-        const user = new User(req.body); 
+        const user = new User({firstName,lastName,emailID,age,password: passwordHash}); 
 
         // Save the new user document into the MongoDB database. 
         // This is an asynchronous operation, so we use 'await'. 
