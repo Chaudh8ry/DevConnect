@@ -5,15 +5,15 @@ const {connectDB} = require("./config/database.js");
 const User = require("./models/user.js");
 const { default: mongoose } = require("mongoose");
 const {validateSignUpData} = require("./utils/validation.js")
-const bcrypt = require("bcrypt")
+const bcrypt = require("bcrypt");
+const user = require("./models/user.js");
 
 // express.json is a middlewear provided by express that converts JSON into JS Object
 app.use(express.json()) 
 
 // Route to Add user in DB
 app.post("/signup",async(req,res) => {
-    
-    
+
     try{
         //Validation
         validateSignUpData(req)
@@ -33,6 +33,34 @@ app.post("/signup",async(req,res) => {
         
         // Send a response back to the client confirming success. 
         res.send("user added Successfully");
+    }catch(err){
+        res.status(400).send("ERROR: " + err.message)
+    }
+})
+
+// Login Route
+app.post("/login",async (req,res) => {
+
+    try{
+        //Extracting EmailId and Password from request body
+        const {emailID,password} = req.body
+
+        //Find user in the database by emailID
+        const userEmail = await User.findOne({emailID : emailID})
+        //if no user found throw error
+        if(!userEmail){
+            throw new Error("Invalid EmailId")
+        }
+
+        //comapring provided password with the hashed password stored in DB
+        const isPasswordValid = await bcrypt.compare(password,userEmail.password)
+        // SUCCESS: If password matches
+        if(isPasswordValid){
+            res.send("User Login Successful")
+        }else{
+            // ERROR: Password doesnt match  
+            throw new Error("Password is not Valid")
+        }
     }catch(err){
         res.status(400).send("ERROR: " + err.message)
     }
