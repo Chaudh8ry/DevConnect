@@ -6,10 +6,12 @@ const User = require("./models/user.js");
 const { default: mongoose } = require("mongoose");
 const {validateSignUpData} = require("./utils/validation.js")
 const bcrypt = require("bcrypt");
-const user = require("./models/user.js");
+const cookieParser = require("cookie-parser")
+const jwt = require("jsonwebtoken")
 
 // express.json is a middlewear provided by express that converts JSON into JS Object
 app.use(express.json()) 
+app.use(cookieParser())
 
 // Route to Add user in DB
 app.post("/signup",async(req,res) => {
@@ -46,16 +48,25 @@ app.post("/login",async (req,res) => {
         const {emailID,password} = req.body
 
         //Find user in the database by emailID
-        const userEmail = await User.findOne({emailID : emailID})
+        const user = await User.findOne({emailID : emailID})
         //if no user found throw error
-        if(!userEmail){
+        if(!user){
             throw new Error("Invalid EmailId")
         }
 
         //comapring provided password with the hashed password stored in DB
-        const isPasswordValid = await bcrypt.compare(password,userEmail.password)
+        const isPasswordValid = await bcrypt.compare(password,user.password)
         // SUCCESS: If password matches
         if(isPasswordValid){
+
+            // Create a JWT token with the user's unique ID (_id). 
+            // The secret key "DEV@CONNECT$123" is used to sign the token.
+            const token = await jwt.sign({_id : user._id}, "DEV@CONNECT$123")
+
+            // Store the token in a cookie named "token".
+            // This allows the client (browser) to automatically send it with future requests.
+            res.cookie("token",token)
+
             res.send("User Login Successful")
         }else{
             // ERROR: Password doesnt match  
@@ -66,8 +77,40 @@ app.post("/login",async (req,res) => {
     }
 })
 
+// Profile Route - Protected endpoint that requires a valid JWT
+app.get("/profile",async (req,res) => {
+    try{
+        // Access cookies sent by the client.
+        const cookies = req.cookies;
+
+        // Extracting token form the cookies
+        const {token} = cookies
+        if(!token){
+            throw new Error("Invalid Token")
+        }
+
+        // Verify the token using the same secret key. 
+        // If valid, jwt.verify returns the decoded payload (user info).
+        const decodedMessage = await jwt.verify(token,"DEV@CONNECT$123")
+        
+        // Extract the user ID from the decoded payload.
+        const {_id} = decodedMessage
+        console.log("Logged in user is: " + _id)
+        
+        // Find the user in the database using the extracted ID.
+        const user = await User.findById(_id)
+        if(!user){
+            throw new Error("User does not exist")
+        }
+
+        res.send(user)
+    }catch(err){
+        res.status(400).send("Something went Wrong" + err.message);
+    } 
+})
+
 // Route: GET user by Email
-app.get("/user", async (req, res) => {
+app.get("/user", async (req, res) => { 
     // Extract the emailID from the request body
     // NOTE: For GET requests, usually query params are used instead of body
     const userEmail = req.body.emailID;
