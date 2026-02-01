@@ -56,13 +56,13 @@ app.post("/login",async (req,res) => {
         }
 
         //comapring provided password with the hashed password stored in DB
-        const isPasswordValid = await bcrypt.compare(password,user.password)
+        const isPasswordValid = await user.validatePassword(password)
         // SUCCESS: If password matches
         if(isPasswordValid){
 
             // Create a JWT token with the user's unique ID (_id). 
             // The secret key "DEV@CONNECT$123" is used to sign the token.
-            const token = await jwt.sign({_id : user._id}, "DEV@CONNECT$123")
+            const token = await user.getJWT()
 
             // Store the token in a cookie named "token".
             // This allows the client (browser) to automatically send it with future requests.
