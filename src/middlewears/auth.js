@@ -1,6 +1,5 @@
 const jwt = require("jsonwebtoken")
 const User = require("../models/user.js")
-// const { user } = require("")
 
 const userAuth = async(req,res,next) => {
     try{
@@ -11,7 +10,7 @@ const userAuth = async(req,res,next) => {
         }
         // Verify the token using the same secret key. 
         // If valid, jwt.verify returns the decoded payload (user info).
-        const decodedObj= await jwt.verify(token,"DEV@CONNECT$123") 
+        const decodedObj = await jwt.verify(token,"DEV@CONNECT$123") 
         
         // Extract the user ID from the decoded payload.
         const {_id} = decodedObj
